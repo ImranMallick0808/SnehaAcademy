@@ -91,7 +91,7 @@ router
 
 
 //gallery
-router.route("/addImage").post(isAuthenticatedUser,addGalleyImage)
+router.route("/addImage").post(singleUpload,addGalleyImage)
 
 router.route("/deleteImage/:id").delete(isAuthenticatedUser,deleteGalleryImage)
 
