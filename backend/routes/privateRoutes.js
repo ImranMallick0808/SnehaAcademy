@@ -91,7 +91,20 @@ router
 
 
 //gallery
-router.route("/addImage").post(singleUpload,addGalleyImage)
+//router.route("/addImage").post(singleUpload,addGalleyImage)
+router.route("/addCourse").post(
+  (req, res, next) => {
+    singleUpload(req, res, (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
+      next();
+    });
+  },
+  isAuthenticatedUser,
+  addCourse
+);
+
 
 router.route("/deleteImage/:id").delete(isAuthenticatedUser,deleteGalleryImage)
 
