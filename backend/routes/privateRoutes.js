@@ -74,7 +74,7 @@ router.route("/getStudentsByBranch/:branch").get(isAuthenticatedUser,getStudents
 //addcoure
 
 
-router.route("/addCourse").post(singleUpload,isAuthenticatedUser, addCourse);  
+router.route("/addCourse").post(isAuthenticatedUser,singleUpload, addCourse);  
 
 //delete
 router
@@ -91,13 +91,13 @@ router
 
 
 //gallery
-router.route("/addImage").post(singleUpload,isAuthenticatedUser,addGalleyImage)
+router.route("/addImage").post(isAuthenticatedUser,singleUpload,addGalleyImage)
 
 router.route("/deleteImage/:id").delete(isAuthenticatedUser,deleteGalleryImage)
 
 router.route("/images").get(getAllGalleryImages)
 
-router.route("/addClassImage").post(singleUpload,isAuthenticatedUser,addClassImage)
+router.route("/addClassImage").post(isAuthenticatedUser,singleUpload,addClassImage)
 
 router.route("/getClassImages").get(getClassImage)
 
