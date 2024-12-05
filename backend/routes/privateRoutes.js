@@ -92,7 +92,7 @@ router
 
 //gallery
 //router.route("/addImage").post(singleUpload,addGalleyImage)
-router.route("/addCourse").post(
+router.route("/addImage").post(
   (req, res, next) => {
     singleUpload(req, res, (err) => {
       if (err) {
@@ -102,7 +102,7 @@ router.route("/addCourse").post(
     });
   },
   isAuthenticatedUser,
-  addCourse
+  addGalleyImage
 );
 
 
