@@ -97,7 +97,7 @@ router.route("/deleteImage/:id").delete(isAuthenticatedUser,deleteGalleryImage)
 
 router.route("/images").get(getAllGalleryImages)
 
-router.route("/addClassImage").post(isAuthenticatedUser,addClassImage,singleUpload)
+router.route("/addClassImage").post(isAuthenticatedUser,singleUpload,addClassImage)
 
 router.route("/getClassImages").get(getClassImage)
 
