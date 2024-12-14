@@ -133,7 +133,7 @@ exports.getLastMonthFees = async (req, res) => {
 };
 
 //
-
+/*
 exports.getMonthlyPaymentHistory = async (req, res) => {
   const { month, year } = req.params; 
 
@@ -155,7 +155,55 @@ exports.getMonthlyPaymentHistory = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch payment history for the month", error });
   }
+};*/
+
+exports.getMonthlyPaymentHistory = async (req, res) => {
+  const { month, year } = req.params; // Parameters for month and year
+  const { page = 1, limit = 5} = req.query; // Pagination query parameters
+
+  try {
+    const startOfMonth = new Date(year, month - 1, 1); // Start of the specified month
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999); // End of the specified month
+
+    // Define the base match query
+    const matchQuery = {
+      createdAt: { $gte: startOfMonth, $lte: endOfMonth },
+    };
+
+    // Count total matching records
+    const totalRecords = await Payment.countDocuments(matchQuery);
+
+    // Perform query with pagination
+    const payments = await Payment.find(matchQuery)
+      .populate("student", "name") // Populate the student name field
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .exec();
+
+    // Calculate the total amount paid for the filtered records
+    const totalAmountPaid = await Payment.aggregate([
+      { $match: { createdAt: { $gte: startOfMonth, $lte: endOfMonth } } },
+      { $group: { _id: null, totalAmountPaid: { $sum: "$totalAmountPaid" } } },
+    ]);
+
+    // Prepare the response
+    res.status(200).json({
+      success: true,
+      payments,
+      totalAmountPaid: totalAmountPaid[0]?.totalAmountPaid || 0,
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalRecords / limit),
+      totalRecords,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch payment history",
+      error: error.message,
+    });
+  }
 };
+
 
 
 
