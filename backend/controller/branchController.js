@@ -58,22 +58,7 @@ exports.getAllBranch = catchAsyncError(async (req, res) => {
 });
 
 
-exports.getAllBranch = catchAsyncError(async (req, res, next) => {
-  try {
-    const branches = await Branch.find({}, { name: 1 }); // Fetch only branch names
-    res.status(200).json({
-      success: true,
-      message: "All branches fetched successfully",
-      branches,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error fetching branches",
-      error: error.message,
-    });
-  }
-});
+
 
 //get student by branch
 exports.getStudentsByBranch = catchAsyncError(async (req, res, next) => {
