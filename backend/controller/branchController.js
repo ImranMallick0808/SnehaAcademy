@@ -48,30 +48,15 @@ exports.editBranch = catchAsyncError(async (req, res, next) => {
 
 //get all branch
 
-/*exports.getAllBranch = catchAsyncError(async (req, res) => {
+exports.getAllBranch = catchAsyncError(async (req, res) => {
   const branch= await Branch.find({});
 
   res.status(200).json({
     success: true,
     branch,
   });
-});*/
-exports.getAllBranch = catchAsyncError(async (req, res, next) => {
-  try {
-    const branches = await Branch.find({}, { name: 1 }); // Fetch only branch names
-    res.status(200).json({
-      success: true,
-      message: "All branches fetched successfully",
-      branches,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error fetching branches",
-      error: error.message,
-    });
-  }
 });
+
 
 exports.getAllBranch = catchAsyncError(async (req, res, next) => {
   try {
