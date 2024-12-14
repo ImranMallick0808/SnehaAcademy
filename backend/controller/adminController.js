@@ -202,34 +202,46 @@ exports.deleteStudent= catchAsyncError(async (req, res) => {
 });*/
 //new
 
+
 exports.getAllStudent = catchAsyncError(async (req, res, next) => {
-  const { page = 1, limit = 10, search = "" } = req.query; // Default to page 1, limit 10, and empty search
+  const { page = 1, limit = 10, search = "" } = req.query;
   const skip = (page - 1) * limit;
 
+  // Build dynamic search query
   const searchQuery = {
     status: "active",
     $or: [
-      { name: { $regex: search, $options: "i" } }, // Case-insensitive name search
-      { branch: { $regex: search, $options: "i" } },
-      { roll: { $regex: search, $options: "i" } },  // Case-insensitive branch search
+      { name: { $regex: search, $options: "i" } }, // Case-insensitive search for name
+      { branch: { $regex: search, $options: "i" } }, // Case-insensitive search for branch
+      { roll: { $regex: search, $options: "i" } }, // Case-insensitive search for roll
     ],
   };
 
-  const allStudent = await Student.find(searchQuery)
-    .populate("payments")
-    .populate("monthlyFees")
-    .skip(skip)
-    .limit(parseInt(limit)); // Use `skip` and `limit` for pagination
+  try {
+    const allStudent = await Student.find(searchQuery)
+      .populate("payments")
+      .populate("monthlyFees")
+      .populate("branch")
+      .skip(skip)
+      .limit(parseInt(limit)); // Pagination with skip and limit
 
-  const totalStudents = await Student.countDocuments(searchQuery); // Total count for pagination
+    const totalStudents = await Student.countDocuments(searchQuery);
 
-  res.status(200).json({
-    success: true,
-    message: "All active students",
-    allStudent,
-    totalStudents, // Total students for frontend pagination calculation
-  });
+    res.status(200).json({
+      success: true,
+      message: "All active students fetched successfully",
+      allStudent,
+      totalStudents,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching students",
+      error: error.message,
+    });
+  }
 });
+
 
 ////get all inactive student student
 exports.getAllInactiveStudent = catchAsyncError(async (req, res, next) => {
