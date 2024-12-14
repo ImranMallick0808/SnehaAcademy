@@ -202,18 +202,16 @@ exports.deleteStudent= catchAsyncError(async (req, res) => {
 });*/
 //new
 
-
 exports.getAllStudent = catchAsyncError(async (req, res, next) => {
-  const { page = 1, limit = 10, search = "" } = req.query;
+  const { page = 1, limit = 10, search = "", branch = "" } = req.query;
   const skip = (page - 1) * limit;
 
-  // Build dynamic search query
   const searchQuery = {
     status: "active",
+    ...(branch && { branch }), // Include branch filter if provided
     $or: [
-      { name: { $regex: search, $options: "i" } }, // Case-insensitive search for name
-      { branch: { $regex: search, $options: "i" } }, // Case-insensitive search for branch
-      { roll: { $regex: search, $options: "i" } }, // Case-insensitive search for roll
+      { name: { $regex: search, $options: "i" } },
+      { roll: { $regex: search, $options: "i" } },
     ],
   };
 
@@ -223,7 +221,7 @@ exports.getAllStudent = catchAsyncError(async (req, res, next) => {
       .populate("monthlyFees")
       .populate("branch")
       .skip(skip)
-      .limit(parseInt(limit)); // Pagination with skip and limit
+      .limit(parseInt(limit));
 
     const totalStudents = await Student.countDocuments(searchQuery);
 
@@ -241,6 +239,7 @@ exports.getAllStudent = catchAsyncError(async (req, res, next) => {
     });
   }
 });
+
 
 
 ////get all inactive student student
