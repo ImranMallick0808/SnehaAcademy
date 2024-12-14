@@ -98,7 +98,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
 });
 
 //student register
-exports.registerStudent = catchAsyncError(async (req, res, next) => {
+/*exports.registerStudent = catchAsyncError(async (req, res, next) => {
   req.body.admin = req.admin.id;
     const student = await Student.create({
     ...req.body, 
@@ -109,6 +109,50 @@ exports.registerStudent = catchAsyncError(async (req, res, next) => {
   res.status(201).json({
     success: true,
     student,
+  });
+});*/
+//new 
+//student register
+exports.registerStudent = catchAsyncError(async (req, res, next) => {
+  req.body.admin = req.admin.id;
+  const newRoll = await Student.findOne()
+  .sort({ roll: -1 }) // Sort by roll number in descending order
+  .select("roll"); // Only retrieve the roll field
+
+let nextnewRoll;
+
+if (newRoll?.roll) {
+  // Extract the numeric part of the roll number
+  const lastRollNumber = parseInt(newRoll.roll.split("-")[1], 10);
+
+  // Increment the numeric part
+  nextnewRoll = `BSA-${lastRollNumber + 1}`;
+} else {
+  // Start with the first roll number
+  nextnewRoll = "BSA-100";
+}
+
+// Handle invalid roll numbers
+if (!nextnewRoll) {
+  return next(new errorHandler("Failed to generate a valid roll number.", 500));
+}
+
+// Log the generated roll number for debugging
+console.log("Generated Roll Number:", nextnewRoll);
+
+// Assign the roll number to req.body
+req.body.roll = nextnewRoll;
+
+    const student = await Student.create({
+    ...req.body, 
+              
+  });
+
+
+  res.status(201).json({
+    success: true,
+    student,
+    roll: nextnewRoll,
   });
 });
 //edit student
@@ -129,9 +173,25 @@ exports.editStudent = catchAsyncError(async (req, res, next) => {
     student,
   });
 });
+exports.deleteStudent= catchAsyncError(async (req, res) => {
+  const { id } = req.params;
 
+  const student= await Student.findByIdAndDelete(id);
+
+  if (!student) {
+    return res.status(404).json({
+      success: false,
+      message: "Student not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Student deleted successfully",
+  });
+});
 //get all active student student
-exports.getAllStudent = catchAsyncError(async (req, res, next) => {
+/*exports.getAllStudent = catchAsyncError(async (req, res, next) => {
   const allStudent = await Student.find({ status: "active" }).populate("payments").populate('monthlyFees');
 
   res.status(200).json({
@@ -139,7 +199,38 @@ exports.getAllStudent = catchAsyncError(async (req, res, next) => {
     message: "All active student",
     allStudent,
   });
+});*/
+//new
+
+exports.getAllStudent = catchAsyncError(async (req, res, next) => {
+  const { page = 1, limit = 10, search = "" } = req.query; // Default to page 1, limit 10, and empty search
+  const skip = (page - 1) * limit;
+
+  const searchQuery = {
+    status: "active",
+    $or: [
+      { name: { $regex: search, $options: "i" } }, // Case-insensitive name search
+      { branch: { $regex: search, $options: "i" } },
+      { roll: { $regex: search, $options: "i" } },  // Case-insensitive branch search
+    ],
+  };
+
+  const allStudent = await Student.find(searchQuery)
+    .populate("payments")
+    .populate("monthlyFees")
+    .skip(skip)
+    .limit(parseInt(limit)); // Use `skip` and `limit` for pagination
+
+  const totalStudents = await Student.countDocuments(searchQuery); // Total count for pagination
+
+  res.status(200).json({
+    success: true,
+    message: "All active students",
+    allStudent,
+    totalStudents, // Total students for frontend pagination calculation
+  });
 });
+
 ////get all inactive student student
 exports.getAllInactiveStudent = catchAsyncError(async (req, res, next) => {
   const allStudent = await Student.find({ status: "inactive" }).populate(
