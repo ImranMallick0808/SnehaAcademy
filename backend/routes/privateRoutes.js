@@ -142,7 +142,7 @@ router.route("/updateStudentStatus/:id").put(isAuthenticatedUser,updateStudentSt
 
 router.route("/getAllInactiveStudent").get(getAllInactiveStudent)
 
-router.route("/editStudent/:id").put(editStudent)
+router.route("/editStudent/:id").put(editStudent).delete(isAuthenticatedUser,deleteStudent)
 router.route("/getUnpaid/:id").get(getUnpaidMonths)
 
 module.exports = router;
