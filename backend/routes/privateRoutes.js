@@ -20,6 +20,7 @@ const {
   getAllInactiveStudent,
   editStudent,
   getUnpaidMonths,
+   deleteStudent,
 } = require("../controller/adminController");
 const { addCourseToStudent, addCourse, editCourse, deleteCourse, deleteCourseFromStudent, getSingleCourse } = require("../controller/courseController");
 
