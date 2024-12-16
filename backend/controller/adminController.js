@@ -3,8 +3,7 @@ const Student = require("../models/studentModel");
 const errorHandler = require("../utils/errorHandler");
 const catchAsyncError = require("../middleware/catchAsyncError");
 const sendToken = require("../utils/sendToken");
-
-
+const moment = require("moment");
 //register admin
 exports.registerAdmin = catchAsyncError(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -112,6 +111,7 @@ exports.logout = catchAsyncError(async (req, res, next) => {
   });
 });*/
 //new 
+/*
 //student register
 exports.registerStudent = catchAsyncError(async (req, res, next) => {
   req.body.admin = req.admin.id;
@@ -143,6 +143,54 @@ console.log("Generated Roll Number:", nextnewRoll);
 // Assign the roll number to req.body
 req.body.roll = nextnewRoll;
 
+    const student = await Student.create({
+    ...req.body, 
+              
+  });
+
+
+  res.status(201).json({
+    success: true,
+    student,
+    roll: nextnewRoll,
+  });
+});*/
+
+//student register
+exports.registerStudent = catchAsyncError(async (req, res, next) => {
+  req.body.admin = req.admin.id;
+  const { dateOfBirth, date} = req.body;
+  const formattedDob = moment(dateOfBirth, "DD/MM/YYYY").toISOString();
+  const formattedAdmissionDate = moment(date, "DD/MM/YYYY").toISOString();
+  const newRoll = await Student.findOne()
+  .sort({ roll: -1 }) // Sort by roll number in descending order
+  .select("roll"); // Only retrieve the roll field
+
+let nextnewRoll;
+
+if (newRoll?.roll) {
+  // Extract the numeric part of the roll number
+  const lastRollNumber = parseInt(newRoll.roll.split("-")[1], 10);
+
+  // Increment the numeric part
+  nextnewRoll = `BSA-${lastRollNumber + 1}`;
+} else {
+  // Start with the first roll number
+  nextnewRoll = "BSA-100";
+}
+
+// Handle invalid roll numbers
+if (!nextnewRoll) {
+  return next(new errorHandler("Failed to generate a valid roll number.", 500));
+}
+
+// Log the generated roll number for debugging
+console.log("Generated Roll Number:", nextnewRoll);
+
+// Assign the roll number to req.body
+req.body.roll = nextnewRoll;
+req.body.dateOfBirth= formattedDob;
+    req.body.date = formattedAdmissionDate;
     const student = await Student.create({
     ...req.body, 
               
