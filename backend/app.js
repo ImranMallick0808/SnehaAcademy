@@ -9,6 +9,7 @@ const path = require("path");//this
 const allowedOrigins = [
   "http://localhost:5173", // For development
   "https://snehaacademy.org", // Production
+    "https://www.snehaacademy.org",
 ];
   // Configure CORS
 const corsOptions = {
