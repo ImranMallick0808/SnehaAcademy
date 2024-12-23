@@ -272,12 +272,14 @@ exports.getAllStudent = catchAsyncError(async (req, res, next) => {
       .limit(parseInt(limit));
 
     const totalStudents = await Student.countDocuments(searchQuery);
+    const totalStudentsCount = await Student.countDocuments(); 
 
     res.status(200).json({
       success: true,
       message: "All active students fetched successfully",
       allStudent,
       totalStudents,
+      totalStudentsCount
     });
   } catch (error) {
     res.status(500).json({
